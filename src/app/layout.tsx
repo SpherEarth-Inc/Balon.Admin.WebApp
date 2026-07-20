@@ -3,6 +3,7 @@ import { Oswald, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth/context";
 import { PlatformProvider } from "@/lib/platform/context";
+import { SessionProvider } from "@/lib/session/context";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -32,10 +33,12 @@ export default function RootLayout({
     >
       <body className="min-h-full font-sans">
         <AuthProvider>
-          <PlatformProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-          </PlatformProvider>
+          <SessionProvider>
+            <PlatformProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </PlatformProvider>
+          </SessionProvider>
         </AuthProvider>
       </body>
     </html>

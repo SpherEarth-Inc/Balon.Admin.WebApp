@@ -80,6 +80,12 @@ export type TokenPair = {
   refresh: string;
 };
 
+export type StaffMembership = {
+  platformId: number;
+  platformName: string;
+  role: string;
+};
+
 export type UserProfile = {
   id: number;
   first_name: string;
@@ -94,7 +100,24 @@ export type UserProfile = {
 export type MeResponse = {
   id: number;
   email: string;
+  is_super_admin: boolean;
+  permissions: string[];
+  memberships: StaffMembership[];
   profile: UserProfile;
+};
+
+export type StaffMember = {
+  id: number;
+  email: string;
+  is_super_admin: boolean;
+  profile: UserProfile;
+  memberships: StaffMembership[];
+};
+
+export type RoleItem = {
+  id: number;
+  name: string;
+  description: string;
 };
 
 export type ProfileUpdatePayload = {

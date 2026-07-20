@@ -52,6 +52,14 @@ export default function NewsListPage() {
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/dashboard" },
+              ...(platform
+                ? [
+                    {
+                      label: formatPlatformLabel(platform.name),
+                      href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
+                    },
+                  ]
+                : []),
               { label: "News" },
             ]}
           />
@@ -76,12 +84,13 @@ export default function NewsListPage() {
         <Select
           className="w-44"
           value={status}
-          onChange={(e) => setStatus(e.target.value as NewsStatus | "")}
-        >
-          <option value="">All statuses</option>
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </Select>
+          onChange={(next) => setStatus(next as NewsStatus | "")}
+          options={[
+            { value: "", label: "All statuses" },
+            { value: "draft", label: "Draft" },
+            { value: "published", label: "Published" },
+          ]}
+        />
       </div>
 
       <div className="overflow-hidden rounded-none border border-border bg-white shadow-sm">

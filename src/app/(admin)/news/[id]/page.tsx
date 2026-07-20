@@ -9,6 +9,7 @@ import { PageSpinner } from "@/components/ui/spinner";
 import { getNews, updateNews } from "@/api/news";
 import type { News } from "@/api/types";
 import { usePlatform } from "@/lib/platform/context";
+import { formatPlatformLabel } from "@/lib/utils";
 
 export default function EditNewsPage() {
   const params = useParams<{ id: string }>();
@@ -50,6 +51,14 @@ export default function EditNewsPage() {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
+            ...(platform
+              ? [
+                  {
+                    label: formatPlatformLabel(platform.name),
+                    href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
+                  },
+                ]
+              : []),
             { label: "News", href: "/news" },
             { label: news.title || "Edit article" },
           ]}

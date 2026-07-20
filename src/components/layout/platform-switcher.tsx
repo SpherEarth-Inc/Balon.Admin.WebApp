@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, ChevronDown, Layers } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,6 +12,7 @@ import { cn, formatPlatformLabel } from "@/lib/utils";
 const SWITCH_DELAY_MS = 4000;
 
 export function PlatformSwitcher() {
+  const router = useRouter();
   const { platforms, platform, setPlatformId, isLoading } = usePlatform();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState<Platform | null>(null);
@@ -43,6 +45,7 @@ export function PlatformSwitcher() {
     setPending(null);
     setSwitching(false);
     setOpen(false);
+    router.push(`/dashboard/platform/${encodeURIComponent(next.name)}`);
   }
 
   if (isLoading && platforms.length === 0) {

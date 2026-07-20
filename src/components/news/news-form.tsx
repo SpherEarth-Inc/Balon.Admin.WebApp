@@ -106,11 +106,12 @@ export function NewsForm({
           <Select
             id="status"
             value={status}
-            onChange={(e) => setStatus(e.target.value as NewsStatus)}
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-          </Select>
+            onChange={(next) => setStatus(next as NewsStatus)}
+            options={[
+              { value: "draft", label: "Draft" },
+              { value: "published", label: "Published" },
+            ]}
+          />
         </div>
 
         <FeaturedImageField

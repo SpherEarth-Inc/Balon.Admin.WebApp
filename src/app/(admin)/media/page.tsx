@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { listMedia } from "@/api/media";
 import type { MediaItem } from "@/api/types";
+import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { PageSpinner } from "@/components/ui/spinner";
 import { usePlatform } from "@/lib/platform/context";
 import { formatDate, formatPlatformLabel } from "@/lib/utils";
@@ -44,6 +45,20 @@ export default function MediaPage() {
   return (
     <div className="space-y-5">
       <div>
+        <Breadcrumb
+          items={[
+            { label: "Dashboard", href: "/dashboard" },
+            ...(platform
+              ? [
+                  {
+                    label: formatPlatformLabel(platform.name),
+                    href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
+                  },
+                ]
+              : []),
+            { label: "Media" },
+          ]}
+        />
         <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
           Media
         </h1>

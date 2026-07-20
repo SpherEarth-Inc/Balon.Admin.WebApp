@@ -43,6 +43,14 @@ export default function NewNewsPage() {
     <Breadcrumb
       items={[
         { label: "Dashboard", href: "/dashboard" },
+        ...(platform
+          ? [
+              {
+                label: formatPlatformLabel(platform.name),
+                href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
+              },
+            ]
+          : []),
         { label: "News", href: "/news" },
         { label: "New article" },
       ]}

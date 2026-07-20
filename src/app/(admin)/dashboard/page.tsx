@@ -1,35 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, ImageIcon, UserPlus } from "lucide-react";
+import { Layers, Users } from "lucide-react";
 import { PageSpinner } from "@/components/ui/spinner";
 import { usePlatform } from "@/lib/platform/context";
-
-const cards = [
-  {
-    href: "/news",
-    title: "News",
-    description: "Write and publish stories for the site you selected.",
-    icon: FileText,
-  },
-  {
-    href: "/media",
-    title: "Media",
-    description: "See images used in your news articles.",
-    icon: ImageIcon,
-  },
-  {
-    href: "/invites",
-    title: "Invites",
-    description: "Invite teammates to help manage this site.",
-    icon: UserPlus,
-  },
-];
+import { useSession } from "@/lib/session/context";
+import { formatPlatformLabel } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { platforms, error, isLoading } = usePlatform();
+  const { canViewStaff, isLoading: sessionLoading } = useSession();
 
-  if (isLoading) {
+  if (isLoading || sessionLoading) {
     return <PageSpinner />;
   }
 
@@ -55,18 +37,33 @@ export default function DashboardPage() {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
+        {canViewStaff ? (
           <Link
-            key={card.href}
-            href={card.href}
+            href="/employees"
             className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
           >
-            <card.icon className="size-5 text-brand-green" />
+            <Users className="size-5 text-brand-green" />
             <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
-              {card.title}
+              Employee
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {card.description}
+              Find and view staff across your sites.
+            </p>
+          </Link>
+        ) : null}
+
+        {platforms.map((p) => (
+          <Link
+            key={p.id}
+            href={`/dashboard/platform/${encodeURIComponent(p.name)}`}
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <Layers className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              {formatPlatformLabel(p.name)}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              News, media, and site tools.
             </p>
           </Link>
         ))}
