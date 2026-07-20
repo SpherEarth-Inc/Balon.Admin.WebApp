@@ -49,15 +49,12 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-md rounded-none border border-border bg-white p-6 shadow-sm sm:p-8">
-      <div className="mb-6">
-        <p className="font-heading text-sm font-bold uppercase tracking-wide text-brand-green">
-          Staff access
-        </p>
-        <h1 className="mt-1 font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-          Sign in to Terra Admin
+      <div className="mb-6 text-center">
+        <h1 className="font-heading text-2xl font-bold uppercase tracking-tight text-brand-navy">
+          Staff <span className="text-brand-green">Buddy</span>
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Manage news, media, and invites across platforms.
+        <p className="mt-2 text-xs text-muted-foreground">
+          Unauthorized access is prohibited.
         </p>
       </div>
 
