@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Terra Soccer Admin WebApp
 
-## Getting Started
+Staff Admin SPA for SpherEarth platforms (`website`, `soccer-academy`, …).
 
-First, run the development server:
+Talks to [Terra.Software.Admin.API](https://github.com/SpherEarth-Inc/Terra.Software.Admin.API).
+
+## Features
+
+- Staff JWT login + refresh
+- Accept invite at `/accept-invite`
+- Top navbar **platform switcher** (next to profile) after login
+- News CMS (TipTap), media library, staff invites
+
+## Setup
 
 ```bash
+cd C:\SpherEarthCanada\Terra.Soccer.Admin.WebApp
+npm install
+copy .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Set `NEXT_PUBLIC_API_BASE_URL` in `.env.local` (required — no localhost fallback). Example:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+NEXT_PUBLIC_API_BASE_URL=https://api.spherearth.ca
+```
 
-## Learn More
+Admin.API CORS should allow this app’s origin, e.g.:
 
-To learn more about Next.js, take a look at the following resources:
+```text
+FRONTEND_URL=http://localhost:3000
+INVITE_ACCEPT_BASE_URL=http://localhost:3000/accept-invite
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Env
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_API_BASE_URL` | **Required.** Admin API origin (no trailing slash), e.g. `https://api.spherearth.ca` |
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Not a static DreamHost export — keep tokens in the browser against the API.
+- Platform selection is persisted in `localStorage` and scopes news/media/invites.

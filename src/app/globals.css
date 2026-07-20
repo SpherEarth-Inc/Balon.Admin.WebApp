@@ -1,26 +1,160 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.99 0.002 240);
+  --foreground: oklch(0.2 0.02 250);
+  --canvas: oklch(0.96 0.005 240);
+  --muted: oklch(0.96 0.01 240);
+  --muted-foreground: oklch(0.5 0.02 250);
+  --border: oklch(0.9 0.01 240);
+  --brand-navy: oklch(0.22 0.04 250);
+  --brand-green: #009900;
+  --brand-amber: oklch(0.72 0.16 65);
+  --radius: 0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-green: var(--brand-green);
+  --color-brand-amber: var(--brand-amber);
+  --font-sans: var(--font-space-grotesk);
+  --font-heading: var(--font-oswald);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--canvas);
+    color: var(--foreground);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-oswald), system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror {
+  min-height: 280px;
+}
+
+.ProseMirror img.terra-content-image,
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* TipTap ResizableNodeView handles */
+.ProseMirror [data-resize-wrapper] {
+  display: inline-block;
+  max-width: 100%;
+  position: relative;
+  line-height: 0;
+}
+
+.ProseMirror [data-resize-handle] {
+  position: absolute;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  background: #009900;
+  border: 1px solid #fff;
+  box-sizing: border-box;
+}
+
+.ProseMirror [data-resize-handle="top"],
+.ProseMirror [data-resize-handle="bottom"] {
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.ProseMirror [data-resize-handle="left"],
+.ProseMirror [data-resize-handle="right"] {
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.ProseMirror [data-resize-handle="top"] {
+  top: -5px;
+}
+
+.ProseMirror [data-resize-handle="bottom"] {
+  bottom: -5px;
+}
+
+.ProseMirror [data-resize-handle="left"] {
+  left: -5px;
+}
+
+.ProseMirror [data-resize-handle="right"] {
+  right: -5px;
+}
+
+.ProseMirror [data-resize-handle="top-left"],
+.ProseMirror [data-resize-handle="top-right"],
+.ProseMirror [data-resize-handle="bottom-left"],
+.ProseMirror [data-resize-handle="bottom-right"] {
+  cursor: nwse-resize;
+}
+
+.ProseMirror [data-resize-handle="top-left"] {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+
+.ProseMirror [data-resize-handle="top-right"] {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+
+.ProseMirror [data-resize-handle="bottom-left"] {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+
+.ProseMirror [data-resize-handle="bottom-right"] {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+.ProseMirror [data-resize-state="true"] {
+  outline: 2px solid #009900;
+  outline-offset: 2px;
 }
