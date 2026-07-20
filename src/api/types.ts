@@ -83,7 +83,11 @@ export type TokenPair = {
 export type StaffMembership = {
   platformId: number;
   platformName: string;
-  role: string;
+  role: string | null;
+  role_permissions?: string[];
+  extra_permissions?: string[];
+  effective_permissions?: string[];
+  permissions?: string[];
 };
 
 export type UserProfile = {
@@ -110,6 +114,7 @@ export type StaffMember = {
   id: number;
   email: string;
   is_super_admin: boolean;
+  permissions?: string[];
   profile: UserProfile;
   memberships: StaffMembership[];
 };
@@ -118,6 +123,19 @@ export type RoleItem = {
   id: number;
   name: string;
   description: string;
+  is_system?: boolean;
+  permissions?: string[];
+};
+
+export type PermissionItem = {
+  name: string;
+  description: string;
+};
+
+export type StaffMembershipUpdate = {
+  platform: string;
+  role: string | null;
+  extra_permissions: string[];
 };
 
 export type ProfileUpdatePayload = {

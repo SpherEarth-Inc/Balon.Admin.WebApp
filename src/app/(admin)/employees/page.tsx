@@ -1,19 +1,16 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createInvite } from "@/api/invites";
-import { listRoles, listStaff } from "@/api/staff";
-import type { CreateInviteResponse, RoleItem, StaffMember } from "@/api/types";
+import { Shield, UserPlus } from "lucide-react";
+import { listStaff } from "@/api/staff";
+import type { StaffMember } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
-import { usePlatform } from "@/lib/platform/context";
 import { useSession } from "@/lib/session/context";
 import { formatPlatformLabel } from "@/lib/utils";
 
@@ -29,35 +26,26 @@ function displayName(member: StaffMember) {
   return name || member.email;
 }
 
+function sitesLabel(member: StaffMember) {
+  if (member.memberships.length) {
+    return member.memberships
+      .map((m) => {
+        const role = m.role || "Custom";
+        return `${formatPlatformLabel(m.platformName)} (${role})`;
+      })
+      .join(", ");
+  }
+  if (member.is_super_admin) return "Super admin";
+  return "—";
+}
+
 export default function EmployeesPage() {
   const router = useRouter();
-  const { platforms } = usePlatform();
   const { canViewStaff, isSuperAdmin, isLoading: sessionLoading } = useSession();
 
   const [q, setQ] = useState("");
   const [items, setItems] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [roles, setRoles] = useState<RoleItem[]>([]);
-
-  const [email, setEmail] = useState("");
-  const [platformName, setPlatformName] = useState("");
-  const [role, setRole] = useState("");
-  const [inviting, setInviting] = useState(false);
-  const [lastInvite, setLastInvite] = useState<CreateInviteResponse | null>(null);
-
-  const platformOptions = useMemo(
-    () =>
-      platforms.map((p) => ({
-        value: p.name,
-        label: formatPlatformLabel(p.name),
-      })),
-    [platforms],
-  );
-
-  const roleOptions = useMemo(
-    () => roles.map((r) => ({ value: r.name, label: r.name })),
-    [roles],
-  );
 
   useEffect(() => {
     if (sessionLoading) return;
@@ -88,136 +76,46 @@ export default function EmployeesPage() {
     };
   }, [canViewStaff, q]);
 
-  useEffect(() => {
-    if (!isSuperAdmin) return;
-    listRoles()
-      .then((data) => {
-        setRoles(data);
-        setRole((current) => current || data[0]?.name || "");
-      })
-      .catch(() => setRoles([]));
-  }, [isSuperAdmin]);
-
-  useEffect(() => {
-    if (platformOptions[0] && !platformName) {
-      setPlatformName(platformOptions[0].value);
-    }
-  }, [platformOptions, platformName]);
-
-  async function onInvite(e: FormEvent) {
-    e.preventDefault();
-    if (!isSuperAdmin) return;
-    setInviting(true);
-    try {
-      const invite = await createInvite({
-        email: email.trim(),
-        platform: platformName,
-        role,
-      });
-      setLastInvite(invite);
-      setEmail("");
-      toast.success("Invite created");
-      const refreshed = await listStaff({ q: q.trim() || undefined });
-      setItems(refreshed);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invite failed");
-    } finally {
-      setInviting(false);
-    }
-  }
-
   if (sessionLoading || !canViewStaff) {
     return <PageSpinner />;
   }
 
   return (
     <div className="space-y-5">
-      <div>
-        <Breadcrumb
-          items={[
-            { label: "Dashboard", href: "/dashboard" },
-            { label: "Employees" },
-          ]}
-        />
-        <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-          Employees
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Find and view staff members.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <Breadcrumb
+            items={[
+              { label: "Dashboard", href: "/dashboard" },
+              { label: "Employees" },
+            ]}
+          />
+          <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
+            Employees
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Find and view staff members.
+          </p>
+        </div>
+        {isSuperAdmin ? (
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/employees/roles"
+              className="inline-flex h-10 items-center gap-2 rounded-none border border-border bg-white px-4 text-sm font-medium text-brand-navy hover:bg-muted"
+            >
+              <Shield className="size-4 text-brand-green" />
+              Roles
+            </Link>
+            <Link
+              href="/employees/invite"
+              className="inline-flex h-10 items-center gap-2 rounded-none bg-brand-green px-4 text-sm font-medium text-white hover:bg-brand-green/90"
+            >
+              <UserPlus className="size-4" />
+              Invite
+            </Link>
+          </div>
+        ) : null}
       </div>
-
-      {isSuperAdmin ? (
-        <form
-          onSubmit={onInvite}
-          className="space-y-5 rounded-none border border-border bg-white p-5 shadow-sm sm:p-6"
-        >
-          <h2 className="font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
-            Invite staff
-          </h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2 md:col-span-1">
-              <Label htmlFor="invite-email">Email</Label>
-              <Input
-                id="invite-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="invite-platform">Platform</Label>
-              <Select
-                id="invite-platform"
-                aria-label="Platform"
-                value={platformName}
-                onChange={setPlatformName}
-                options={platformOptions}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="invite-role">Role</Label>
-              <Select
-                id="invite-role"
-                aria-label="Role"
-                value={role}
-                onChange={setRole}
-                options={roleOptions}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={inviting || !platformName || !role}>
-              {inviting ? "Creating…" : "Create invite"}
-            </Button>
-          </div>
-          {lastInvite ? (
-            <div className="border-t border-border pt-4 text-sm">
-              <p className="font-medium text-brand-navy">Invite ready</p>
-              <p className="mt-1 text-muted-foreground">
-                {lastInvite.email} · {lastInvite.role} ·{" "}
-                {formatPlatformLabel(lastInvite.platformName)}
-              </p>
-              <p className="mt-3 break-all rounded-none bg-muted px-3 py-2 text-xs">
-                {lastInvite.invite_link}
-              </p>
-              <Button
-                className="mt-3"
-                variant="secondary"
-                size="sm"
-                type="button"
-                onClick={async () => {
-                  await navigator.clipboard.writeText(lastInvite.invite_link);
-                  toast.success("Invite link copied");
-                }}
-              >
-                Copy invite link
-              </Button>
-            </div>
-          ) : null}
-        </form>
-      ) : null}
 
       <div className="space-y-3">
         <div className="max-w-md">
@@ -236,7 +134,7 @@ export default function EmployeesPage() {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-muted/50 text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Staff</th>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="hidden px-4 py-3 font-medium md:table-cell">
                   Job title
@@ -265,39 +163,47 @@ export default function EmployeesPage() {
                   </td>
                 </tr>
               ) : (
-                items.map((member) => (
-                  <tr
-                    key={member.id}
-                    className="border-b border-border last:border-0"
-                  >
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/employees/${member.id}`}
-                        className="font-medium text-brand-green hover:underline"
-                      >
-                        {displayName(member)}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {member.email}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                      {member.profile.job_title || "—"}
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
-                      {member.memberships.length
-                        ? member.memberships
-                            .map(
-                              (m) =>
-                                `${formatPlatformLabel(m.platformName)} (${m.role})`,
-                            )
-                            .join(", ")
-                        : member.is_super_admin
-                          ? "Super admin"
-                          : "—"}
-                    </td>
-                  </tr>
-                ))}
+                items.map((member) => {
+                  const name = displayName(member);
+                  return (
+                    <tr
+                      key={member.id}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="px-4 py-3">
+                        <Link
+                          href={`/employees/${member.id}`}
+                          className="flex items-center gap-3 font-medium text-brand-green hover:underline"
+                        >
+                          <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-muted">
+                            {member.profile.photo_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={member.profile.photo_url}
+                                alt=""
+                                className="size-full object-cover"
+                              />
+                            ) : (
+                              <span className="font-heading text-sm font-bold text-brand-navy">
+                                {name.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </span>
+                          <span className="min-w-0 truncate">{name}</span>
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {member.email}
+                      </td>
+                      <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                        {member.profile.job_title || "—"}
+                      </td>
+                      <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
+                        {sitesLabel(member)}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
