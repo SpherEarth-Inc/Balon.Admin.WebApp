@@ -50,15 +50,17 @@ export type CreateInviteResponse = {
   id: number;
   email: string;
   role: string;
-  token: string;
-  invite_link: string;
   expires_at: string;
+  email_sent: boolean;
+  email_error: string | null;
 };
 
 export type AcceptInviteResponse = {
   message: string;
   email: string;
   role: string;
+  access: string;
+  refresh: string;
 };
 
 export type TokenPair = {

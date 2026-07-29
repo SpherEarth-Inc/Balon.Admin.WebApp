@@ -21,6 +21,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isReady: boolean;
   login: (email: string, password: string) => Promise<void>;
+  establishSession: (access: string, refresh: string, email: string) => void;
   logout: () => void;
 };
 
@@ -45,6 +46,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setEmail(nextEmail);
   }, []);
 
+  const establishSession = useCallback(
+    (access: string, refresh: string, nextEmail: string) => {
+      setSession(access, refresh, nextEmail);
+      setEmail(nextEmail);
+    },
+    [],
+  );
+
   const logout = useCallback(() => {
     clearSession();
     setEmail(null);
@@ -56,9 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: Boolean(email && getAccessToken()),
       isReady,
       login,
+      establishSession,
       logout,
     }),
-    [email, isReady, login, logout],
+    [email, isReady, login, establishSession, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

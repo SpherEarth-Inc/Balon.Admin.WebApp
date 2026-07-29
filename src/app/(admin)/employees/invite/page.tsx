@@ -59,7 +59,14 @@ export default function InviteEmployeePage() {
       });
       setLastInvite(invite);
       setEmail("");
-      toast.success("Invite created");
+      if (invite.email_sent) {
+        toast.success("Invite emailed");
+      } else {
+        toast.error(
+          invite.email_error ||
+            "Invite saved but the email could not be sent. Check Notification.Service.",
+        );
+      }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Invite failed");
     } finally {
@@ -85,7 +92,7 @@ export default function InviteEmployeePage() {
           Invite
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Invite a teammate and choose their role.
+          Invite a teammate by email. They activate their account only from that email link.
         </p>
       </div>
 
@@ -117,32 +124,25 @@ export default function InviteEmployeePage() {
         </div>
         <div className="flex justify-end">
           <Button type="submit" disabled={inviting || !role}>
-            {inviting ? "Creating…" : "Create invite"}
+            {inviting ? "Sending…" : "Send invite"}
           </Button>
         </div>
       </form>
 
       {lastInvite ? (
         <div className="rounded-none border border-border bg-white p-5 text-sm shadow-sm sm:p-6">
-          <p className="font-medium text-brand-navy">Invite ready</p>
+          <p className="font-medium text-brand-navy">
+            {lastInvite.email_sent ? "Invite sent" : "Invite created"}
+          </p>
           <p className="mt-1 text-muted-foreground">
             {lastInvite.email} · {lastInvite.role}
           </p>
-          <p className="mt-3 break-all rounded-none bg-muted px-3 py-2 text-xs">
-            {lastInvite.invite_link}
+          <p className="mt-3 text-muted-foreground">
+            {lastInvite.email_sent
+              ? "They will receive an email with a one-time link to set their password and sign in. The invite link is not shown here."
+              : lastInvite.email_error ||
+                "Email was not sent. Fix Notification.Service and send a new invite."}
           </p>
-          <Button
-            className="mt-3"
-            variant="secondary"
-            size="sm"
-            type="button"
-            onClick={async () => {
-              await navigator.clipboard.writeText(lastInvite.invite_link);
-              toast.success("Invite link copied");
-            }}
-          >
-            Copy invite link
-          </Button>
         </div>
       ) : null}
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, Suspense, useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -87,13 +86,8 @@ function LoginForm() {
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        Have an invite?{" "}
-        <Link
-          href="/accept-invite"
-          className="font-medium text-brand-green hover:underline"
-        >
-          Accept invite
-        </Link>
+        Staff access is by invitation only. Use the link in your invite email to
+        activate your account.
       </p>
     </div>
   );
