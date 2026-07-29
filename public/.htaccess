@@ -21,12 +21,13 @@ DirectoryIndex index.html
 
   # Dynamic detail routes: serve the static-export placeholder "_" page.
   # Client React still reads the real id from the browser URL.
-  # Skip when the request already resolved to a real file (e.g. news/index.html),
-  # otherwise a second rewrite pass would steal the list page into news/_/.
+  # Skip when the request already resolved to a real file (e.g. employees/index.html),
+  # otherwise a second rewrite pass would steal the list page into employees/_/.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^employees/[^/]+/?$ /employees/_/index.html [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^news/(?!new(?:/|$))[^/]+/?$ /news/_/index.html [L]
+
+  # Legacy /news/:id/ bookmarks → query-param editor
+  RewriteRule ^news/([0-9]+)/?$ /news/edit/?id=$1 [R=301,L]
 
   # Serve folder index.html for clean URLs
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -34,4 +35,4 @@ DirectoryIndex index.html
   RewriteRule ^(.+?)/?$ $1/index.html [L]
 </IfModule>
 
-# Redeploy bump 2026-07-29-news-rewrite-fix
+# Redeploy bump 2026-07-29-news-edit-query

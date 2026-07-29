@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { NewsForm } from "@/components/news/news-form";
@@ -10,20 +10,21 @@ import { getNews, updateNews } from "@/api/news";
 import type { News } from "@/api/types";
 
 export function NewsEdit() {
-  const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const newsId = searchParams.get("id");
   const router = useRouter();
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!params.id || params.id === "_") {
+    if (!newsId) {
       router.replace("/news/");
       return;
     }
 
     let cancelled = false;
     setLoading(true);
-    getNews(params.id)
+    getNews(newsId)
       .then((data) => {
         if (!cancelled) setNews(data);
       })
@@ -39,7 +40,7 @@ export function NewsEdit() {
     return () => {
       cancelled = true;
     };
-  }, [params.id, router]);
+  }, [newsId, router]);
 
   if (loading) {
     return <PageSpinner />;

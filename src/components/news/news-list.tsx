@@ -123,7 +123,7 @@ export function NewsList() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Link
-                        href={`/news/${item.id}`}
+                        href={`/news/edit/?id=${item.id}`}
                         className="text-sm font-medium text-brand-green hover:underline"
                       >
                         Edit

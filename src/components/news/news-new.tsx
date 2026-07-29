@@ -25,7 +25,7 @@ export function NewsNew() {
       content: emptyDoc,
     })
       .then((created) => {
-        router.replace(`/news/${created.id}`);
+        router.replace(`/news/edit/?id=${created.id}`);
       })
       .catch((err) => {
         const message =
@@ -40,7 +40,7 @@ export function NewsNew() {
     <Breadcrumb
       items={[
         { label: "Dashboard", href: "/dashboard" },
-        { label: "News", href: "/news" },
+        { label: "News", href: "/news/" },
         { label: "New article" },
       ]}
     />
