@@ -13,8 +13,6 @@ export type TipTapDoc = {
 
 export type NewsStatus = "draft" | "published";
 
-export type Product = "website" | "soccer";
-
 export type News = {
   id: number;
   title: string;

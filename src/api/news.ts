@@ -1,17 +1,15 @@
 import { apiRequest } from "@/api/client";
-import type { News, NewsStatus, Product, TipTapDoc } from "@/api/types";
-import { productApiPrefix } from "@/lib/products";
+import type { News, NewsStatus, TipTapDoc } from "@/api/types";
 
-export function listNews(product: Product, status?: NewsStatus) {
+export function listNews(status?: NewsStatus) {
   const params = new URLSearchParams();
   if (status) params.set("status", status);
   const qs = params.toString();
-  const prefix = productApiPrefix(product);
-  return apiRequest<News[]>(`/api/${prefix}/news/${qs ? `?${qs}` : ""}`);
+  return apiRequest<News[]>(`/api/news/${qs ? `?${qs}` : ""}`);
 }
 
-export function getNews(product: Product, idOrSlug: string | number) {
-  return apiRequest<News>(`/api/${productApiPrefix(product)}/news/${idOrSlug}/`);
+export function getNews(idOrSlug: string | number) {
+  return apiRequest<News>(`/api/news/${idOrSlug}/`);
 }
 
 export type NewsWritePayload = {
@@ -24,32 +22,25 @@ export type NewsWritePayload = {
   slug?: string;
 };
 
-export function createNews(product: Product, payload: NewsWritePayload) {
-  return apiRequest<News>(`/api/${productApiPrefix(product)}/news/`, {
+export function createNews(payload: NewsWritePayload) {
+  return apiRequest<News>(`/api/news/`, {
     method: "POST",
     body: payload,
   });
 }
 
 export function updateNews(
-  product: Product,
   idOrSlug: string | number,
   payload: Partial<NewsWritePayload>,
 ) {
-  return apiRequest<News>(
-    `/api/${productApiPrefix(product)}/news/${idOrSlug}/`,
-    {
-      method: "PATCH",
-      body: payload,
-    },
-  );
+  return apiRequest<News>(`/api/news/${idOrSlug}/`, {
+    method: "PATCH",
+    body: payload,
+  });
 }
 
-export function deleteNews(product: Product, idOrSlug: string | number) {
-  return apiRequest<void>(
-    `/api/${productApiPrefix(product)}/news/${idOrSlug}/`,
-    {
-      method: "DELETE",
-    },
-  );
+export function deleteNews(idOrSlug: string | number) {
+  return apiRequest<void>(`/api/news/${idOrSlug}/`, {
+    method: "DELETE",
+  });
 }

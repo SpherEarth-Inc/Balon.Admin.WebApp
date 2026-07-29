@@ -46,20 +46,26 @@ function formatPermission(codename: string) {
 
 function groupPermissions(catalog: PermissionItem[]): PermissionGroup[] {
   const groups: PermissionGroup[] = [
-    { key: "website", label: "Website", items: [] },
-    { key: "soccer", label: "Soccer", items: [] },
+    { key: "news", label: "News", items: [] },
+    { key: "media", label: "Media", items: [] },
     { key: "staff", label: "Staff", items: [] },
+    { key: "forms", label: "Forms", items: [] },
+    { key: "balon", label: "Balon", items: [] },
     { key: "other", label: "Other", items: [] },
   ];
   const byKey = new Map(groups.map((g) => [g.key, g]));
 
   for (const perm of catalog) {
-    if (perm.name.startsWith("website.")) {
-      byKey.get("website")!.items.push(perm);
-    } else if (perm.name.startsWith("soccer.")) {
-      byKey.get("soccer")!.items.push(perm);
+    if (perm.name.startsWith("news.")) {
+      byKey.get("news")!.items.push(perm);
+    } else if (perm.name.startsWith("media.")) {
+      byKey.get("media")!.items.push(perm);
     } else if (perm.name.startsWith("staff.")) {
       byKey.get("staff")!.items.push(perm);
+    } else if (perm.name.startsWith("forms.")) {
+      byKey.get("forms")!.items.push(perm);
+    } else if (perm.name.startsWith("balon.")) {
+      byKey.get("balon")!.items.push(perm);
     } else {
       byKey.get("other")!.items.push(perm);
     }
@@ -263,7 +269,7 @@ export default function EmployeeDetailPage() {
 
             {member.is_super_admin ? (
               <p className="mt-2 text-sm text-muted-foreground">
-                Super admin access to all products and permissions.
+                Super admin access to all permissions.
               </p>
             ) : canEditAccess ? (
               <form onSubmit={onSave} className="mt-3 space-y-4">

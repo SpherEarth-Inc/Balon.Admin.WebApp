@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadMedia } from "@/api/media";
-import type { News, NewsStatus, Product, TipTapDoc } from "@/api/types";
+import type { News, NewsStatus, TipTapDoc } from "@/api/types";
 
 export type NewsFormValues = {
   title: string;
@@ -21,7 +21,6 @@ export type NewsFormValues = {
 };
 
 type NewsFormProps = {
-  product: Product;
   newsId: number;
   initial?: Partial<News>;
   submitLabel: string;
@@ -29,7 +28,6 @@ type NewsFormProps = {
 };
 
 export function NewsForm({
-  product,
   newsId,
   initial,
   submitLabel,
@@ -50,7 +48,7 @@ export function NewsForm({
   async function handleUpload(file: File, asFeatured = false) {
     setUploading(true);
     try {
-      const media = await uploadMedia(product, file, newsId);
+      const media = await uploadMedia(file, newsId);
       if (asFeatured) setFeaturedImage(media.url);
       if (!asFeatured) toast.success("Image added");
       else toast.success("Featured image uploaded");

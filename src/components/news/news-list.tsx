@@ -8,13 +8,10 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { deleteNews, listNews } from "@/api/news";
-import type { News, NewsStatus, Product } from "@/api/types";
-import { productBasePath, productLabel } from "@/lib/products";
+import type { News, NewsStatus } from "@/api/types";
 import { formatDate } from "@/lib/utils";
 
-export function ProductNewsList({ product }: { product: Product }) {
-  const label = productLabel(product);
-  const base = productBasePath(product);
+export function NewsList() {
   const [items, setItems] = useState<News[]>([]);
   const [status, setStatus] = useState<NewsStatus | "">("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +19,7 @@ export function ProductNewsList({ product }: { product: Product }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listNews(product, status || undefined)
+    listNews(status || undefined)
       .then((data) => {
         if (!cancelled) setItems(data);
       })
@@ -39,7 +36,7 @@ export function ProductNewsList({ product }: { product: Product }) {
     return () => {
       cancelled = true;
     };
-  }, [product, status]);
+  }, [status]);
 
   return (
     <div className="space-y-5">
@@ -48,17 +45,16 @@ export function ProductNewsList({ product }: { product: Product }) {
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/dashboard" },
-              { label },
               { label: "News" },
             ]}
           />
           <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-            {label} News
+            News
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Stories for {label}.{" "}
+            Stories and updates.{" "}
             <Link
-              href={`${base}/media`}
+              href="/media"
               className="font-medium text-brand-green hover:underline"
             >
               View media
@@ -66,7 +62,7 @@ export function ProductNewsList({ product }: { product: Product }) {
           </p>
         </div>
         <Link
-          href={`${base}/news/new`}
+          href="/news/new"
           className="inline-flex h-10 items-center gap-2 rounded-none bg-brand-green px-4 text-sm font-medium text-white hover:bg-brand-green/90"
         >
           <Plus className="size-4" />
@@ -127,7 +123,7 @@ export function ProductNewsList({ product }: { product: Product }) {
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Link
-                        href={`${base}/news/${item.id}`}
+                        href={`/news/${item.id}`}
                         className="text-sm font-medium text-brand-green hover:underline"
                       >
                         Edit
@@ -138,7 +134,7 @@ export function ProductNewsList({ product }: { product: Product }) {
                         onClick={async () => {
                           if (!confirm(`Delete “${item.title}”?`)) return;
                           try {
-                            await deleteNews(product, item.id);
+                            await deleteNews(item.id);
                             setItems((prev) => prev.filter((n) => n.id !== item.id));
                             toast.success("Deleted");
                           } catch (err) {

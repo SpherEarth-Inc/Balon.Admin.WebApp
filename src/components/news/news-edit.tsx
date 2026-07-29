@@ -7,13 +7,10 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { NewsForm } from "@/components/news/news-form";
 import { PageSpinner } from "@/components/ui/spinner";
 import { getNews, updateNews } from "@/api/news";
-import type { News, Product } from "@/api/types";
-import { productBasePath, productLabel } from "@/lib/products";
+import type { News } from "@/api/types";
 
-export function ProductNewsEdit({ product }: { product: Product }) {
+export function NewsEdit() {
   const params = useParams<{ id: string }>();
-  const label = productLabel(product);
-  const base = productBasePath(product);
   const router = useRouter();
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,14 +18,14 @@ export function ProductNewsEdit({ product }: { product: Product }) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getNews(product, params.id)
+    getNews(params.id)
       .then((data) => {
         if (!cancelled) setNews(data);
       })
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load");
-          router.replace(`${base}/news`);
+          router.replace("/news");
         }
       })
       .finally(() => {
@@ -37,7 +34,7 @@ export function ProductNewsEdit({ product }: { product: Product }) {
     return () => {
       cancelled = true;
     };
-  }, [params.id, product, base, router]);
+  }, [params.id, router]);
 
   if (loading) {
     return <PageSpinner />;
@@ -51,8 +48,7 @@ export function ProductNewsEdit({ product }: { product: Product }) {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            { label },
-            { label: "News", href: `${base}/news` },
+            { label: "News", href: "/news" },
             { label: news.title || "Edit article" },
           ]}
         />
@@ -63,13 +59,12 @@ export function ProductNewsEdit({ product }: { product: Product }) {
 
       <div className="rounded-none border border-border bg-white p-5 shadow-sm sm:p-6">
         <NewsForm
-          product={product}
           newsId={news.id}
           initial={news}
           submitLabel="Save changes"
           onSubmit={async (values) => {
             try {
-              const updated = await updateNews(product, news.id, {
+              const updated = await updateNews(news.id, {
                 title: values.title,
                 summary: values.summary,
                 featured_image: values.featured_image || null,

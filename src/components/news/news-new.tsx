@@ -5,14 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { createNews } from "@/api/news";
-import type { Product } from "@/api/types";
 import { emptyDoc } from "@/components/news/tiptap-editor";
-import { productBasePath, productLabel } from "@/lib/products";
 
 /** Creates a draft, then opens the editor. */
-export function ProductNewsNew({ product }: { product: Product }) {
-  const label = productLabel(product);
-  const base = productBasePath(product);
+export function NewsNew() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -22,14 +18,14 @@ export function ProductNewsNew({ product }: { product: Product }) {
     if (started.current) return;
     started.current = true;
 
-    createNews(product, {
+    createNews({
       title: "Untitled",
       summary: "",
       status: "draft",
       content: emptyDoc,
     })
       .then((created) => {
-        router.replace(`${base}/news/${created.id}`);
+        router.replace(`/news/${created.id}`);
       })
       .catch((err) => {
         const message =
@@ -38,14 +34,13 @@ export function ProductNewsNew({ product }: { product: Product }) {
         toast.error(message);
         started.current = false;
       });
-  }, [product, base, router, attempt]);
+  }, [router, attempt]);
 
   const crumb = (
     <Breadcrumb
       items={[
         { label: "Dashboard", href: "/dashboard" },
-        { label },
-        { label: "News", href: `${base}/news` },
+        { label: "News", href: "/news" },
         { label: "New article" },
       ]}
     />
@@ -74,9 +69,7 @@ export function ProductNewsNew({ product }: { product: Product }) {
   return (
     <div className="space-y-3">
       {crumb}
-      <p className="text-sm text-muted-foreground">
-        Opening a new article for {label}…
-      </p>
+      <p className="text-sm text-muted-foreground">Opening a new article…</p>
     </div>
   );
 }

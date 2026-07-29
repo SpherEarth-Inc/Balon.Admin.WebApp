@@ -17,7 +17,7 @@ const oswald = Oswald({
 
 export const metadata: Metadata = {
   title: "Staff Buddy",
-  description: "Staff admin for SpherEarth website and soccer",
+  description: "Staff admin for SpherEarth",
 };
 
 export default function RootLayout({

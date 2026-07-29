@@ -22,8 +22,7 @@ DirectoryIndex index.html
   # Dynamic detail routes: serve the static-export placeholder "_" page.
   # Client React still reads the real id from the browser URL.
   RewriteRule ^employees/[^/]+/?$ /employees/_/index.html [L]
-  RewriteRule ^website/news/[^/]+/?$ /website/news/_/index.html [L]
-  RewriteRule ^soccer/news/[^/]+/?$ /soccer/news/_/index.html [L]
+  RewriteRule ^news/(?!new(?:/|$))[^/]+/?$ /news/_/index.html [L]
 
   # Serve folder index.html for clean URLs
   RewriteCond %{REQUEST_FILENAME} !-f

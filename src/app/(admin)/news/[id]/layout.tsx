@@ -2,7 +2,7 @@ export function generateStaticParams() {
   return [{ id: "_" }];
 }
 
-export default function SoccerNewsDetailLayout({
+export default function NewsDetailLayout({
   children,
 }: {
   children: React.ReactNode;

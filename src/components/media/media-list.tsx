@@ -4,22 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { listMedia } from "@/api/media";
-import type { MediaItem, Product } from "@/api/types";
+import type { MediaItem } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { PageSpinner } from "@/components/ui/spinner";
-import { productBasePath, productLabel } from "@/lib/products";
 import { formatDate } from "@/lib/utils";
 
-export function ProductMediaList({ product }: { product: Product }) {
-  const label = productLabel(product);
-  const base = productBasePath(product);
+export function MediaList() {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listMedia(product)
+    listMedia()
       .then((data) => {
         if (!cancelled) setItems(data);
       })
@@ -36,7 +33,7 @@ export function ProductMediaList({ product }: { product: Product }) {
     return () => {
       cancelled = true;
     };
-  }, [product]);
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -44,17 +41,16 @@ export function ProductMediaList({ product }: { product: Product }) {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            { label },
             { label: "Media" },
           ]}
         />
         <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-          {label} Media
+          Media
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Images used in {label} news. Add or change them when you{" "}
+          Images used in news. Add or change them when you{" "}
           <Link
-            href={`${base}/news`}
+            href="/news"
             className="font-medium text-brand-green hover:underline"
           >
             edit a news article

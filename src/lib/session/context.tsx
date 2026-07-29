@@ -18,10 +18,8 @@ type SessionContextValue = {
   isSuperAdmin: boolean;
   permissions: string[];
   hasPermission: (codename: string) => boolean;
-  canAccessWebsiteNews: boolean;
-  canAccessSoccerNews: boolean;
-  canAccessWebsiteMedia: boolean;
-  canAccessSoccerMedia: boolean;
+  canAccessNews: boolean;
+  canAccessMedia: boolean;
   canViewStaff: boolean;
   refresh: () => Promise<void>;
 };
@@ -67,14 +65,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     [isSuperAdmin, permissions],
   );
 
-  const canAccessWebsiteNews =
-    isSuperAdmin || hasAnyPrefix(permissions, "website.news.");
-  const canAccessSoccerNews =
-    isSuperAdmin || hasAnyPrefix(permissions, "soccer.news.");
-  const canAccessWebsiteMedia =
-    isSuperAdmin || hasAnyPrefix(permissions, "website.media.");
-  const canAccessSoccerMedia =
-    isSuperAdmin || hasAnyPrefix(permissions, "soccer.media.");
+  const canAccessNews =
+    isSuperAdmin || hasAnyPrefix(permissions, "news.");
+  const canAccessMedia =
+    isSuperAdmin || hasAnyPrefix(permissions, "media.");
   const canViewStaff = isSuperAdmin || permissions.includes("staff.view");
 
   const value = useMemo(
@@ -84,10 +78,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       isSuperAdmin,
       permissions,
       hasPermission,
-      canAccessWebsiteNews,
-      canAccessSoccerNews,
-      canAccessWebsiteMedia,
-      canAccessSoccerMedia,
+      canAccessNews,
+      canAccessMedia,
       canViewStaff,
       refresh,
     }),
@@ -97,10 +89,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       isSuperAdmin,
       permissions,
       hasPermission,
-      canAccessWebsiteNews,
-      canAccessSoccerNews,
-      canAccessWebsiteMedia,
-      canAccessSoccerMedia,
+      canAccessNews,
+      canAccessMedia,
       canViewStaff,
       refresh,
     ],
