@@ -1,4 +1,5 @@
 import { apiRequest } from "@/api/client";
+import { normalizePage } from "@/api/pagination";
 import type {
   PageParams,
   PaginatedResponse,
@@ -10,15 +11,16 @@ import type {
 
 const CATALOG_PAGE_SIZE = 100;
 
-export function listStaff(params?: PageParams & { q?: string }) {
+export async function listStaff(params?: PageParams & { q?: string }) {
   const search = new URLSearchParams();
   if (params?.q) search.set("q", params.q);
   if (params?.page) search.set("page", String(params.page));
   if (params?.page_size) search.set("page_size", String(params.page_size));
   const qs = search.toString();
-  return apiRequest<PaginatedResponse<StaffMember>>(
+  const data = await apiRequest<PaginatedResponse<StaffMember> | StaffMember[]>(
     `/api/staff/${qs ? `?${qs}` : ""}`,
   );
+  return normalizePage(data, params?.page_size);
 }
 
 export function getStaff(id: number) {
@@ -32,14 +34,15 @@ export function updateStaffAccess(id: number, payload: StaffAccessUpdate) {
   });
 }
 
-export function listRoles(params?: PageParams) {
+export async function listRoles(params?: PageParams) {
   const search = new URLSearchParams();
   if (params?.page) search.set("page", String(params.page));
   if (params?.page_size) search.set("page_size", String(params.page_size));
   const qs = search.toString();
-  return apiRequest<PaginatedResponse<RoleItem>>(
+  const data = await apiRequest<PaginatedResponse<RoleItem> | RoleItem[]>(
     `/api/roles/${qs ? `?${qs}` : ""}`,
   );
+  return normalizePage(data, params?.page_size);
 }
 
 /** Full role catalog for pickers (up to max page size). */
@@ -83,14 +86,15 @@ export function deleteRole(id: number) {
   });
 }
 
-export function listPermissions(params?: PageParams) {
+export async function listPermissions(params?: PageParams) {
   const search = new URLSearchParams();
   if (params?.page) search.set("page", String(params.page));
   if (params?.page_size) search.set("page_size", String(params.page_size));
   const qs = search.toString();
-  return apiRequest<PaginatedResponse<PermissionItem>>(
-    `/api/permissions/${qs ? `?${qs}` : ""}`,
-  );
+  const data = await apiRequest<
+    PaginatedResponse<PermissionItem> | PermissionItem[]
+  >(`/api/permissions/${qs ? `?${qs}` : ""}`);
+  return normalizePage(data, params?.page_size);
 }
 
 /** Full permission catalog for pickers (up to max page size). */

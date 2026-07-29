@@ -1,4 +1,5 @@
 import { apiRequest } from "@/api/client";
+import { normalizePage } from "@/api/pagination";
 import type {
   News,
   NewsStatus,
@@ -7,15 +8,16 @@ import type {
   TipTapDoc,
 } from "@/api/types";
 
-export function listNews(params?: PageParams & { status?: NewsStatus }) {
+export async function listNews(params?: PageParams & { status?: NewsStatus }) {
   const search = new URLSearchParams();
   if (params?.status) search.set("status", params.status);
   if (params?.page) search.set("page", String(params.page));
   if (params?.page_size) search.set("page_size", String(params.page_size));
   const qs = search.toString();
-  return apiRequest<PaginatedResponse<News>>(
+  const data = await apiRequest<PaginatedResponse<News> | News[]>(
     `/api/news/${qs ? `?${qs}` : ""}`,
   );
+  return normalizePage(data, params?.page_size);
 }
 
 export function getNews(idOrSlug: string | number) {
