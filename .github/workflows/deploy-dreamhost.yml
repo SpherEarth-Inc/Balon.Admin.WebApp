@@ -33,6 +33,7 @@ jobs:
           NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL || 'https://balon-admin-api.spherearth.ca' }}
 
       # DreamHost uses SFTP (port 22), not plain FTP (port 21).
+      # Redeploy trigger: folder path is built from username + DREAMHOST_SFTP_FOLDER_NAME.
       # lftp mirror --delete syncs out/ like FTP-Deploy-Action: upload changes + remove stale files.
       # GitHub secrets — Settings → Secrets and variables → Actions:
       #   DREAMHOST_SFTP_SERVER      → hostname only (no sftp:// prefix)
