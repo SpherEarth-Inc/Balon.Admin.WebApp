@@ -5,15 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Plus, Shield, Trash2 } from "lucide-react";
-import { createRole, deleteRole, listPermissions, listRoles, updateRole } from "@/api/staff";
+import { createRole, deleteRole, listAllPermissions, listRoles, updateRole } from "@/api/staff";
 import type { PermissionItem, RoleItem } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PaginationBar } from "@/components/ui/pagination-bar";
 import { PageSpinner } from "@/components/ui/spinner";
 import { useSession } from "@/lib/session/context";
 import { cn } from "@/lib/utils";
+
+const PAGE_SIZE = 20;
 
 function formatPermission(codename: string) {
   return codename
@@ -42,6 +45,8 @@ export default function RolesPage() {
   const { isSuperAdmin, isLoading: sessionLoading } = useSession();
   const [roles, setRoles] = useState<RoleItem[]>([]);
   const [catalog, setCatalog] = useState<PermissionItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -53,9 +58,13 @@ export default function RolesPage() {
     }
   }, [sessionLoading, isSuperAdmin, router]);
 
-  async function refresh() {
-    const [roleList, perms] = await Promise.all([listRoles(), listPermissions()]);
-    setRoles(roleList);
+  async function refresh(nextPage = page) {
+    const [rolePage, perms] = await Promise.all([
+      listRoles({ page: nextPage, page_size: PAGE_SIZE }),
+      listAllPermissions(),
+    ]);
+    setRoles(rolePage.results);
+    setTotal(rolePage.count);
     setCatalog(perms);
   }
 
@@ -63,7 +72,7 @@ export default function RolesPage() {
     if (!isSuperAdmin) return;
     let cancelled = false;
     setLoading(true);
-    refresh()
+    refresh(page)
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load roles");
@@ -75,7 +84,8 @@ export default function RolesPage() {
     return () => {
       cancelled = true;
     };
-  }, [isSuperAdmin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refresh when page/admin changes
+  }, [isSuperAdmin, page]);
 
   async function onSave(e: FormEvent) {
     e.preventDefault();
@@ -306,6 +316,13 @@ export default function RolesPage() {
             </li>
           ))}
         </ul>
+
+        <PaginationBar
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={total}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

@@ -10,8 +10,11 @@ import type { StaffMember } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PaginationBar } from "@/components/ui/pagination-bar";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/lib/session/context";
+
+const PAGE_SIZE = 20;
 
 function displayName(member: StaffMember) {
   const name = [
@@ -37,6 +40,8 @@ export default function EmployeesPage() {
 
   const [q, setQ] = useState("");
   const [items, setItems] = useState<StaffMember[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,17 +52,25 @@ export default function EmployeesPage() {
   }, [sessionLoading, canViewStaff, router]);
 
   useEffect(() => {
+    setPage(1);
+  }, [q]);
+
+  useEffect(() => {
     if (!canViewStaff) return;
     let cancelled = false;
     setLoading(true);
-    listStaff({ q: q.trim() || undefined })
+    listStaff({ q: q.trim() || undefined, page, page_size: PAGE_SIZE })
       .then((data) => {
-        if (!cancelled) setItems(data);
+        if (!cancelled) {
+          setItems(data.results);
+          setTotal(data.count);
+        }
       })
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load staff");
           setItems([]);
+          setTotal(0);
         }
       })
       .finally(() => {
@@ -66,7 +79,7 @@ export default function EmployeesPage() {
     return () => {
       cancelled = true;
     };
-  }, [canViewStaff, q]);
+  }, [canViewStaff, q, page]);
 
   if (sessionLoading || !canViewStaff) {
     return <PageSpinner />;
@@ -201,6 +214,13 @@ export default function EmployeesPage() {
           </table>
         </div>
       </div>
+
+      <PaginationBar
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

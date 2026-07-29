@@ -1,8 +1,14 @@
 import { apiRequest } from "@/api/client";
-import type { MediaItem } from "@/api/types";
+import type { MediaItem, PageParams, PaginatedResponse } from "@/api/types";
 
-export function listMedia() {
-  return apiRequest<MediaItem[]>(`/api/media/`);
+export function listMedia(params?: PageParams) {
+  const search = new URLSearchParams();
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.page_size) search.set("page_size", String(params.page_size));
+  const qs = search.toString();
+  return apiRequest<PaginatedResponse<MediaItem>>(
+    `/api/media/${qs ? `?${qs}` : ""}`,
+  );
 }
 
 export function uploadMedia(file: File, newsId: number) {

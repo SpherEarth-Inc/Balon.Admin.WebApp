@@ -5,8 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   getStaff,
-  listPermissions,
-  listRoles,
+  listAllPermissions,
+  listAllRoles,
   updateStaffAccess,
 } from "@/api/staff";
 import type { PermissionItem, RoleItem, StaffMember } from "@/api/types";
@@ -130,7 +130,7 @@ export default function EmployeeDetailPage() {
     Promise.all([
       getStaff(id),
       isSuperAdmin
-        ? Promise.all([listRoles(), listPermissions()])
+        ? Promise.all([listAllRoles(), listAllPermissions()])
         : Promise.resolve([[] as RoleItem[], [] as PermissionItem[]] as const),
     ])
       .then(([data, roleData]) => {

@@ -1,16 +1,24 @@
 import { apiRequest } from "@/api/client";
 import type {
+  PageParams,
+  PaginatedResponse,
   PermissionItem,
   RoleItem,
   StaffAccessUpdate,
   StaffMember,
 } from "@/api/types";
 
-export function listStaff(params?: { q?: string }) {
+const CATALOG_PAGE_SIZE = 100;
+
+export function listStaff(params?: PageParams & { q?: string }) {
   const search = new URLSearchParams();
   if (params?.q) search.set("q", params.q);
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.page_size) search.set("page_size", String(params.page_size));
   const qs = search.toString();
-  return apiRequest<StaffMember[]>(`/api/staff/${qs ? `?${qs}` : ""}`);
+  return apiRequest<PaginatedResponse<StaffMember>>(
+    `/api/staff/${qs ? `?${qs}` : ""}`,
+  );
 }
 
 export function getStaff(id: number) {
@@ -24,8 +32,20 @@ export function updateStaffAccess(id: number, payload: StaffAccessUpdate) {
   });
 }
 
-export function listRoles() {
-  return apiRequest<RoleItem[]>("/api/roles/");
+export function listRoles(params?: PageParams) {
+  const search = new URLSearchParams();
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.page_size) search.set("page_size", String(params.page_size));
+  const qs = search.toString();
+  return apiRequest<PaginatedResponse<RoleItem>>(
+    `/api/roles/${qs ? `?${qs}` : ""}`,
+  );
+}
+
+/** Full role catalog for pickers (up to max page size). */
+export async function listAllRoles() {
+  const data = await listRoles({ page: 1, page_size: CATALOG_PAGE_SIZE });
+  return data.results;
 }
 
 export function getRole(id: number) {
@@ -63,6 +83,21 @@ export function deleteRole(id: number) {
   });
 }
 
-export function listPermissions() {
-  return apiRequest<PermissionItem[]>("/api/permissions/");
+export function listPermissions(params?: PageParams) {
+  const search = new URLSearchParams();
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.page_size) search.set("page_size", String(params.page_size));
+  const qs = search.toString();
+  return apiRequest<PaginatedResponse<PermissionItem>>(
+    `/api/permissions/${qs ? `?${qs}` : ""}`,
+  );
+}
+
+/** Full permission catalog for pickers (up to max page size). */
+export async function listAllPermissions() {
+  const data = await listPermissions({
+    page: 1,
+    page_size: CATALOG_PAGE_SIZE,
+  });
+  return data.results;
 }

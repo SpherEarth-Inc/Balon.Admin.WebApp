@@ -1,11 +1,21 @@
 import { apiRequest } from "@/api/client";
-import type { News, NewsStatus, TipTapDoc } from "@/api/types";
+import type {
+  News,
+  NewsStatus,
+  PageParams,
+  PaginatedResponse,
+  TipTapDoc,
+} from "@/api/types";
 
-export function listNews(status?: NewsStatus) {
-  const params = new URLSearchParams();
-  if (status) params.set("status", status);
-  const qs = params.toString();
-  return apiRequest<News[]>(`/api/news/${qs ? `?${qs}` : ""}`);
+export function listNews(params?: PageParams & { status?: NewsStatus }) {
+  const search = new URLSearchParams();
+  if (params?.status) search.set("status", params.status);
+  if (params?.page) search.set("page", String(params.page));
+  if (params?.page_size) search.set("page_size", String(params.page_size));
+  const qs = search.toString();
+  return apiRequest<PaginatedResponse<News>>(
+    `/api/news/${qs ? `?${qs}` : ""}`,
+  );
 }
 
 export function getNews(idOrSlug: string | number) {

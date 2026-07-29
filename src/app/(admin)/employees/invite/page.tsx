@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createInvite } from "@/api/invites";
-import { listRoles } from "@/api/staff";
+import { listAllRoles } from "@/api/staff";
 import type { CreateInviteResponse, RoleItem } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export default function InviteEmployeePage() {
 
   useEffect(() => {
     if (!isSuperAdmin) return;
-    listRoles()
+    listAllRoles()
       .then((data) => {
         setRoles(data);
         setRole((current) => current || data[0]?.name || "");

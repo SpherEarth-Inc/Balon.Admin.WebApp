@@ -5,28 +5,45 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { PaginationBar } from "@/components/ui/pagination-bar";
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { deleteNews, listNews } from "@/api/news";
 import type { News, NewsStatus } from "@/api/types";
 import { formatDate } from "@/lib/utils";
 
+const PAGE_SIZE = 20;
+
 export function NewsList() {
   const [items, setItems] = useState<News[]>([]);
   const [status, setStatus] = useState<NewsStatus | "">("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setPage(1);
+  }, [status]);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listNews(status || undefined)
+    listNews({
+      status: status || undefined,
+      page,
+      page_size: PAGE_SIZE,
+    })
       .then((data) => {
-        if (!cancelled) setItems(data);
+        if (!cancelled) {
+          setItems(data.results);
+          setTotal(data.count);
+        }
       })
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load news");
           setItems([]);
+          setTotal(0);
         }
       })
       .finally(() => {
@@ -36,7 +53,7 @@ export function NewsList() {
     return () => {
       cancelled = true;
     };
-  }, [status]);
+  }, [status, page]);
 
   return (
     <div className="space-y-5">
@@ -135,7 +152,16 @@ export function NewsList() {
                           if (!confirm(`Delete “${item.title}”?`)) return;
                           try {
                             await deleteNews(item.id);
-                            setItems((prev) => prev.filter((n) => n.id !== item.id));
+                            const data = await listNews({
+                              status: status || undefined,
+                              page,
+                              page_size: PAGE_SIZE,
+                            });
+                            setItems(data.results);
+                            setTotal(data.count);
+                            if (data.results.length === 0 && page > 1) {
+                              setPage(page - 1);
+                            }
                             toast.success("Deleted");
                           } catch (err) {
                             toast.error(
@@ -154,6 +180,13 @@ export function NewsList() {
           </tbody>
         </table>
       </div>
+
+      <PaginationBar
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

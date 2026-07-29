@@ -6,24 +6,33 @@ import { toast } from "sonner";
 import { listMedia } from "@/api/media";
 import type { MediaItem } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
+import { PaginationBar } from "@/components/ui/pagination-bar";
 import { PageSpinner } from "@/components/ui/spinner";
 import { formatDate } from "@/lib/utils";
 
+const PAGE_SIZE = 20;
+
 export function MediaList() {
   const [items, setItems] = useState<MediaItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listMedia()
+    listMedia({ page, page_size: PAGE_SIZE })
       .then((data) => {
-        if (!cancelled) setItems(data);
+        if (!cancelled) {
+          setItems(data.results);
+          setTotal(data.count);
+        }
       })
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load media");
           setItems([]);
+          setTotal(0);
         }
       })
       .finally(() => {
@@ -33,7 +42,7 @@ export function MediaList() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [page]);
 
   return (
     <div className="space-y-5">
@@ -106,6 +115,13 @@ export function MediaList() {
           ))}
         </div>
       )}
+
+      <PaginationBar
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={total}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

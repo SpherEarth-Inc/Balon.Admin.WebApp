@@ -35,4 +35,4 @@ DirectoryIndex index.html
   RewriteRule ^(.+?)/?$ $1/index.html [L]
 </IfModule>
 
-# Redeploy bump 2026-07-29-news-edit-query
+# Redeploy bump 2026-07-29-pagination

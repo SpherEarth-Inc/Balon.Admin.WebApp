@@ -1,3 +1,15 @@
+export type PaginatedResponse<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+export type PageParams = {
+  page?: number;
+  page_size?: number;
+};
+
 export type TipTapNode = {
   type: string;
   attrs?: Record<string, unknown>;
