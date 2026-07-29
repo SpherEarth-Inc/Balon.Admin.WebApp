@@ -53,7 +53,7 @@ export function NewsEdit() {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            { label: "News", href: "/news" },
+            { label: "News", href: "/news/" },
             { label: news.title || "Edit article" },
           ]}
         />
