@@ -44,16 +44,19 @@ INVITE_ACCEPT_BASE_URL=https://balon-admin.spherearth.ca/accept-invite
 
 ## Deploy (DreamHost)
 
-Pushes to `main` run [`.github/workflows/deploy-dreamhost.yml`](.github/workflows/deploy-dreamhost.yml): build static `out/` and SFTP-sync to the subdomain root.
+Pushes to `main` run [`.github/workflows/deploy-dreamhost.yml`](.github/workflows/deploy-dreamhost.yml): build static `out/` and SFTP-sync into the **SFTP user home folder** (`/home/<username>/`).
+
+Point the `balon-admin.spherearth.ca` document root at that user home in DreamHost. Use a **dedicated** DreamHost user for this site so football and admin do not overwrite each other.
 
 GitHub **Secrets** (Actions):
 
 | Secret | Value |
 |--------|--------|
 | `DREAMHOST_SFTP_SERVER` | hostname only (no `sftp://`) |
-| `DREAMHOST_SFTP_USERNAME` | SFTP user |
+| `DREAMHOST_SFTP_USERNAME` | SFTP user (site deploys to `/home/<this>/`) |
 | `DREAMHOST_SFTP_PASSWORD` | SFTP password |
-| `DREAMHOST_SFTP_REMOTE_PATH` | e.g. `/home/USER/balon-admin.spherearth.ca/` |
+
+You can remove `DREAMHOST_SFTP_FOLDER_NAME` / `DREAMHOST_SFTP_REMOTE_PATH` if they were set earlier — they are no longer used.
 
 Optional **Variable**: `NEXT_PUBLIC_API_BASE_URL` (defaults to `https://balon-admin-api.spherearth.ca`).
 
