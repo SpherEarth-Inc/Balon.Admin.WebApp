@@ -17,11 +17,20 @@ type SessionContextValue = {
   isLoading: boolean;
   isSuperAdmin: boolean;
   permissions: string[];
+  hasPermission: (codename: string) => boolean;
+  canAccessWebsiteNews: boolean;
+  canAccessSoccerNews: boolean;
+  canAccessWebsiteMedia: boolean;
+  canAccessSoccerMedia: boolean;
   canViewStaff: boolean;
   refresh: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
+
+function hasAnyPrefix(permissions: string[], prefix: string) {
+  return permissions.some((p) => p.startsWith(prefix));
+}
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isReady } = useAuth();
@@ -52,8 +61,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const permissions = me?.permissions ?? [];
   const isSuperAdmin = Boolean(me?.is_super_admin);
-  const canViewStaff =
-    isSuperAdmin || permissions.includes("staff.view");
+
+  const hasPermission = useCallback(
+    (codename: string) => isSuperAdmin || permissions.includes(codename),
+    [isSuperAdmin, permissions],
+  );
+
+  const canAccessWebsiteNews =
+    isSuperAdmin || hasAnyPrefix(permissions, "website.news.");
+  const canAccessSoccerNews =
+    isSuperAdmin || hasAnyPrefix(permissions, "soccer.news.");
+  const canAccessWebsiteMedia =
+    isSuperAdmin || hasAnyPrefix(permissions, "website.media.");
+  const canAccessSoccerMedia =
+    isSuperAdmin || hasAnyPrefix(permissions, "soccer.media.");
+  const canViewStaff = isSuperAdmin || permissions.includes("staff.view");
 
   const value = useMemo(
     () => ({
@@ -61,10 +83,27 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       isSuperAdmin,
       permissions,
+      hasPermission,
+      canAccessWebsiteNews,
+      canAccessSoccerNews,
+      canAccessWebsiteMedia,
+      canAccessSoccerMedia,
       canViewStaff,
       refresh,
     }),
-    [me, isLoading, isSuperAdmin, permissions, canViewStaff, refresh],
+    [
+      me,
+      isLoading,
+      isSuperAdmin,
+      permissions,
+      hasPermission,
+      canAccessWebsiteNews,
+      canAccessSoccerNews,
+      canAccessWebsiteMedia,
+      canAccessSoccerMedia,
+      canViewStaff,
+      refresh,
+    ],
   );
 
   return (

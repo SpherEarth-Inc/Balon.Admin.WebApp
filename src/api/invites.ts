@@ -6,7 +6,6 @@ import type {
 
 export function createInvite(payload: {
   email: string;
-  platform: string;
   role: string;
 }) {
   return apiRequest<CreateInviteResponse>("/api/invites/", {

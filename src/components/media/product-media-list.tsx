@@ -4,26 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { listMedia } from "@/api/media";
-import type { MediaItem } from "@/api/types";
+import type { MediaItem, Product } from "@/api/types";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { PageSpinner } from "@/components/ui/spinner";
-import { usePlatform } from "@/lib/platform/context";
-import { formatDate, formatPlatformLabel } from "@/lib/utils";
+import { productBasePath, productLabel } from "@/lib/products";
+import { formatDate } from "@/lib/utils";
 
-export default function MediaPage() {
-  const { platform } = usePlatform();
+export function ProductMediaList({ product }: { product: Product }) {
+  const label = productLabel(product);
+  const base = productBasePath(product);
   const [items, setItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!platform) {
-      setItems([]);
-      return;
-    }
-
     let cancelled = false;
     setLoading(true);
-    listMedia(platform.name)
+    listMedia(product)
       .then((data) => {
         if (!cancelled) setItems(data);
       })
@@ -40,7 +36,7 @@ export default function MediaPage() {
     return () => {
       cancelled = true;
     };
-  }, [platform]);
+  }, [product]);
 
   return (
     <div className="space-y-5">
@@ -48,26 +44,17 @@ export default function MediaPage() {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            ...(platform
-              ? [
-                  {
-                    label: formatPlatformLabel(platform.name),
-                    href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
-                  },
-                ]
-              : []),
+            { label },
             { label: "Media" },
           ]}
         />
         <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-          Media
+          {label} Media
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Images used in{" "}
-          {platform ? formatPlatformLabel(platform.name) : "this site"} news.
-          Add or change them when you{" "}
+          Images used in {label} news. Add or change them when you{" "}
           <Link
-            href="/news"
+            href={`${base}/news`}
             className="font-medium text-brand-green hover:underline"
           >
             edit a news article

@@ -5,30 +5,31 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { createNews } from "@/api/news";
+import type { Product } from "@/api/types";
 import { emptyDoc } from "@/components/news/tiptap-editor";
-import { usePlatform } from "@/lib/platform/context";
-import { formatPlatformLabel } from "@/lib/utils";
+import { productBasePath, productLabel } from "@/lib/products";
 
 /** Creates a draft, then opens the editor. */
-export default function NewNewsPage() {
-  const { platform } = usePlatform();
+export function ProductNewsNew({ product }: { product: Product }) {
+  const label = productLabel(product);
+  const base = productBasePath(product);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const started = useRef(false);
 
   useEffect(() => {
-    if (!platform || started.current) return;
+    if (started.current) return;
     started.current = true;
 
-    createNews({
-      platform: platform.name,
+    createNews(product, {
       title: "Untitled",
       summary: "",
       status: "draft",
       content: emptyDoc,
     })
       .then((created) => {
-        router.replace(`/news/${created.id}`);
+        router.replace(`${base}/news/${created.id}`);
       })
       .catch((err) => {
         const message =
@@ -37,36 +38,18 @@ export default function NewNewsPage() {
         toast.error(message);
         started.current = false;
       });
-  }, [platform, router]);
+  }, [product, base, router, attempt]);
 
   const crumb = (
     <Breadcrumb
       items={[
         { label: "Dashboard", href: "/dashboard" },
-        ...(platform
-          ? [
-              {
-                label: formatPlatformLabel(platform.name),
-                href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
-              },
-            ]
-          : []),
-        { label: "News", href: "/news" },
+        { label },
+        { label: "News", href: `${base}/news` },
         { label: "New article" },
       ]}
     />
   );
-
-  if (!platform) {
-    return (
-      <div className="space-y-3">
-        {crumb}
-        <div className="rounded-none border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          Select a platform in the top bar before creating news.
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -79,7 +62,7 @@ export default function NewNewsPage() {
           onClick={() => {
             setError(null);
             started.current = false;
-            router.refresh();
+            setAttempt((n) => n + 1);
           }}
         >
           Try again
@@ -92,7 +75,7 @@ export default function NewNewsPage() {
     <div className="space-y-3">
       {crumb}
       <p className="text-sm text-muted-foreground">
-        Opening a new article for {formatPlatformLabel(platform.name)}…
+        Opening a new article for {label}…
       </p>
     </div>
   );

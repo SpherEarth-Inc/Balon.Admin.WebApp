@@ -8,25 +8,21 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { Select } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { deleteNews, listNews } from "@/api/news";
-import type { News, NewsStatus } from "@/api/types";
-import { usePlatform } from "@/lib/platform/context";
-import { formatDate, formatPlatformLabel } from "@/lib/utils";
+import type { News, NewsStatus, Product } from "@/api/types";
+import { productBasePath, productLabel } from "@/lib/products";
+import { formatDate } from "@/lib/utils";
 
-export default function NewsListPage() {
-  const { platform } = usePlatform();
+export function ProductNewsList({ product }: { product: Product }) {
+  const label = productLabel(product);
+  const base = productBasePath(product);
   const [items, setItems] = useState<News[]>([]);
   const [status, setStatus] = useState<NewsStatus | "">("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!platform) {
-      setItems([]);
-      return;
-    }
-
     let cancelled = false;
     setLoading(true);
-    listNews(platform.name, status || undefined)
+    listNews(product, status || undefined)
       .then((data) => {
         if (!cancelled) setItems(data);
       })
@@ -43,7 +39,7 @@ export default function NewsListPage() {
     return () => {
       cancelled = true;
     };
-  }, [platform, status]);
+  }, [product, status]);
 
   return (
     <div className="space-y-5">
@@ -52,27 +48,25 @@ export default function NewsListPage() {
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/dashboard" },
-              ...(platform
-                ? [
-                    {
-                      label: formatPlatformLabel(platform.name),
-                      href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
-                    },
-                  ]
-                : []),
+              { label },
               { label: "News" },
             ]}
           />
           <h1 className="font-heading text-3xl font-bold uppercase tracking-tight text-brand-navy">
-            News
+            {label} News
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Stories for{" "}
-            {platform ? formatPlatformLabel(platform.name) : "this site"}.
+            Stories for {label}.{" "}
+            <Link
+              href={`${base}/media`}
+              className="font-medium text-brand-green hover:underline"
+            >
+              View media
+            </Link>
           </p>
         </div>
         <Link
-          href="/news/new"
+          href={`${base}/news/new`}
           className="inline-flex h-10 items-center gap-2 rounded-none bg-brand-green px-4 text-sm font-medium text-white hover:bg-brand-green/90"
         >
           <Plus className="size-4" />
@@ -117,7 +111,7 @@ export default function NewsListPage() {
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
-                  No articles yet for this platform.
+                  No articles yet.
                 </td>
               </tr>
             ) : (
@@ -133,7 +127,7 @@ export default function NewsListPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
                       <Link
-                        href={`/news/${item.id}`}
+                        href={`${base}/news/${item.id}`}
                         className="text-sm font-medium text-brand-green hover:underline"
                       >
                         Edit
@@ -144,7 +138,7 @@ export default function NewsListPage() {
                         onClick={async () => {
                           if (!confirm(`Delete “${item.title}”?`)) return;
                           try {
-                            await deleteNews(item.id);
+                            await deleteNews(product, item.id);
                             setItems((prev) => prev.filter((n) => n.id !== item.id));
                             toast.success("Deleted");
                           } catch (err) {

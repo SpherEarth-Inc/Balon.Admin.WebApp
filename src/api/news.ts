@@ -1,21 +1,20 @@
 import { apiRequest } from "@/api/client";
-import type { News, NewsStatus, TipTapDoc } from "@/api/types";
+import type { News, NewsStatus, Product, TipTapDoc } from "@/api/types";
+import { productApiPrefix } from "@/lib/products";
 
-export function listNews(platform: string, status?: NewsStatus) {
-  const params = new URLSearchParams({ platform });
+export function listNews(product: Product, status?: NewsStatus) {
+  const params = new URLSearchParams();
   if (status) params.set("status", status);
-  return apiRequest<News[]>(`/api/news/?${params.toString()}`);
+  const qs = params.toString();
+  const prefix = productApiPrefix(product);
+  return apiRequest<News[]>(`/api/${prefix}/news/${qs ? `?${qs}` : ""}`);
 }
 
-export function getNews(idOrSlug: string | number, platform?: string) {
-  const params = platform
-    ? `?${new URLSearchParams({ platform }).toString()}`
-    : "";
-  return apiRequest<News>(`/api/news/${idOrSlug}/${params}`);
+export function getNews(product: Product, idOrSlug: string | number) {
+  return apiRequest<News>(`/api/${productApiPrefix(product)}/news/${idOrSlug}/`);
 }
 
 export type NewsWritePayload = {
-  platform: string;
   title: string;
   summary?: string;
   featured_image?: string | null;
@@ -25,25 +24,32 @@ export type NewsWritePayload = {
   slug?: string;
 };
 
-export function createNews(payload: NewsWritePayload) {
-  return apiRequest<News>("/api/news/", {
+export function createNews(product: Product, payload: NewsWritePayload) {
+  return apiRequest<News>(`/api/${productApiPrefix(product)}/news/`, {
     method: "POST",
     body: payload,
   });
 }
 
 export function updateNews(
+  product: Product,
   idOrSlug: string | number,
-  payload: Partial<Omit<NewsWritePayload, "platform">>,
+  payload: Partial<NewsWritePayload>,
 ) {
-  return apiRequest<News>(`/api/news/${idOrSlug}/`, {
-    method: "PATCH",
-    body: payload,
-  });
+  return apiRequest<News>(
+    `/api/${productApiPrefix(product)}/news/${idOrSlug}/`,
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
 }
 
-export function deleteNews(idOrSlug: string | number) {
-  return apiRequest<void>(`/api/news/${idOrSlug}/`, {
-    method: "DELETE",
-  });
+export function deleteNews(product: Product, idOrSlug: string | number) {
+  return apiRequest<void>(
+    `/api/${productApiPrefix(product)}/news/${idOrSlug}/`,
+    {
+      method: "DELETE",
+    },
+  );
 }

@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageSpinner, Spinner } from "@/components/ui/spinner";
 import { useSession } from "@/lib/session/context";
-import { formatPlatformLabel } from "@/lib/utils";
 
 function displayName(member: StaffMember) {
   const name = [
@@ -26,17 +25,10 @@ function displayName(member: StaffMember) {
   return name || member.email;
 }
 
-function sitesLabel(member: StaffMember) {
-  if (member.memberships.length) {
-    return member.memberships
-      .map((m) => {
-        const role = m.role || "Custom";
-        return `${formatPlatformLabel(m.platformName)} (${role})`;
-      })
-      .join(", ");
-  }
+function roleLabel(member: StaffMember) {
   if (member.is_super_admin) return "Super admin";
-  return "—";
+  if (!member.access) return "—";
+  return member.access.role || "Custom";
 }
 
 export default function EmployeesPage() {
@@ -140,7 +132,7 @@ export default function EmployeesPage() {
                   Job title
                 </th>
                 <th className="hidden px-4 py-3 font-medium lg:table-cell">
-                  Sites
+                  Role
                 </th>
               </tr>
             </thead>
@@ -199,7 +191,7 @@ export default function EmployeesPage() {
                         {member.profile.job_title || "—"}
                       </td>
                       <td className="hidden px-4 py-3 text-muted-foreground lg:table-cell">
-                        {sitesLabel(member)}
+                        {roleLabel(member)}
                       </td>
                     </tr>
                   );

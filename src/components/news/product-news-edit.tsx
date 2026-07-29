@@ -7,13 +7,13 @@ import { Breadcrumb } from "@/components/layout/breadcrumb";
 import { NewsForm } from "@/components/news/news-form";
 import { PageSpinner } from "@/components/ui/spinner";
 import { getNews, updateNews } from "@/api/news";
-import type { News } from "@/api/types";
-import { usePlatform } from "@/lib/platform/context";
-import { formatPlatformLabel } from "@/lib/utils";
+import type { News, Product } from "@/api/types";
+import { productBasePath, productLabel } from "@/lib/products";
 
-export default function EditNewsPage() {
+export function ProductNewsEdit({ product }: { product: Product }) {
   const params = useParams<{ id: string }>();
-  const { platform } = usePlatform();
+  const label = productLabel(product);
+  const base = productBasePath(product);
   const router = useRouter();
   const [news, setNews] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,14 +21,14 @@ export default function EditNewsPage() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    getNews(params.id, platform?.name)
+    getNews(product, params.id)
       .then((data) => {
         if (!cancelled) setNews(data);
       })
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load");
-          router.replace("/news");
+          router.replace(`${base}/news`);
         }
       })
       .finally(() => {
@@ -37,7 +37,7 @@ export default function EditNewsPage() {
     return () => {
       cancelled = true;
     };
-  }, [params.id, platform?.name, router]);
+  }, [params.id, product, base, router]);
 
   if (loading) {
     return <PageSpinner />;
@@ -51,15 +51,8 @@ export default function EditNewsPage() {
         <Breadcrumb
           items={[
             { label: "Dashboard", href: "/dashboard" },
-            ...(platform
-              ? [
-                  {
-                    label: formatPlatformLabel(platform.name),
-                    href: `/dashboard/platform/${encodeURIComponent(platform.name)}`,
-                  },
-                ]
-              : []),
-            { label: "News", href: "/news" },
+            { label },
+            { label: "News", href: `${base}/news` },
             { label: news.title || "Edit article" },
           ]}
         />
@@ -70,12 +63,13 @@ export default function EditNewsPage() {
 
       <div className="rounded-none border border-border bg-white p-5 shadow-sm sm:p-6">
         <NewsForm
+          product={product}
           newsId={news.id}
           initial={news}
           submitLabel="Save changes"
           onSubmit={async (values) => {
             try {
-              const updated = await updateNews(news.id, {
+              const updated = await updateNews(product, news.id, {
                 title: values.title,
                 summary: values.summary,
                 featured_image: values.featured_image || null,

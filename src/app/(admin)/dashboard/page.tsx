@@ -1,19 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { Layers, Users } from "lucide-react";
+import { FileText, ImageIcon, Users } from "lucide-react";
 import { PageSpinner } from "@/components/ui/spinner";
-import { usePlatform } from "@/lib/platform/context";
 import { useSession } from "@/lib/session/context";
-import { formatPlatformLabel } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { platforms, error, isLoading } = usePlatform();
-  const { canViewStaff, isLoading: sessionLoading } = useSession();
+  const {
+    canViewStaff,
+    canAccessWebsiteNews,
+    canAccessSoccerNews,
+    canAccessWebsiteMedia,
+    canAccessSoccerMedia,
+    isLoading: sessionLoading,
+  } = useSession();
 
-  if (isLoading || sessionLoading) {
+  if (sessionLoading) {
     return <PageSpinner />;
   }
+
+  const hasAnyCard =
+    canViewStaff ||
+    canAccessWebsiteNews ||
+    canAccessSoccerNews ||
+    canAccessWebsiteMedia ||
+    canAccessSoccerMedia;
 
   return (
     <div className="space-y-6">
@@ -23,20 +34,74 @@ export default function DashboardPage() {
         </h1>
       </div>
 
-      {error ? (
-        <div className="rounded-none border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-          {error}
-        </div>
-      ) : null}
-
-      {!error && platforms.length === 0 ? (
+      {!hasAnyCard ? (
         <div className="rounded-none border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          You do not have access to any sites yet. Ask an administrator for an
-          invite.
+          You do not have access to any tools yet. Ask an administrator for an
+          invite or permissions.
         </div>
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {canAccessWebsiteNews ? (
+          <Link
+            href="/website/news"
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <FileText className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              Website News
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Write and publish website stories.
+            </p>
+          </Link>
+        ) : null}
+
+        {canAccessSoccerNews ? (
+          <Link
+            href="/soccer/news"
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <FileText className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              Soccer News
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Write and publish soccer stories.
+            </p>
+          </Link>
+        ) : null}
+
+        {canAccessWebsiteMedia ? (
+          <Link
+            href="/website/media"
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <ImageIcon className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              Website Media
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Images used in website news.
+            </p>
+          </Link>
+        ) : null}
+
+        {canAccessSoccerMedia ? (
+          <Link
+            href="/soccer/media"
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <ImageIcon className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              Soccer Media
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Images used in soccer news.
+            </p>
+          </Link>
+        ) : null}
+
         {canViewStaff ? (
           <Link
             href="/employees"
@@ -47,26 +112,10 @@ export default function DashboardPage() {
               Employee
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Find and view staff across your sites.
+              Find and view staff members.
             </p>
           </Link>
         ) : null}
-
-        {platforms.map((p) => (
-          <Link
-            key={p.id}
-            href={`/dashboard/platform/${encodeURIComponent(p.name)}`}
-            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
-          >
-            <Layers className="size-5 text-brand-green" />
-            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
-              {formatPlatformLabel(p.name)}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              News, media, and site tools.
-            </p>
-          </Link>
-        ))}
       </div>
     </div>
   );

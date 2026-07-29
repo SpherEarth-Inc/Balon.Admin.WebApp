@@ -1,7 +1,6 @@
 const ACCESS_KEY = "terra_admin_access";
 const REFRESH_KEY = "terra_admin_refresh";
 const EMAIL_KEY = "terra_admin_email";
-const PLATFORM_KEY = "terra_admin_platform_id";
 
 export function getAccessToken() {
   if (typeof window === "undefined") return null;
@@ -32,20 +31,6 @@ export function clearSession() {
   localStorage.removeItem(ACCESS_KEY);
   localStorage.removeItem(REFRESH_KEY);
   localStorage.removeItem(EMAIL_KEY);
-}
-
-export function getStoredPlatformId() {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(PLATFORM_KEY);
-  if (!raw) return null;
-  const id = Number(raw);
-  return Number.isFinite(id) ? id : null;
-}
-
-export function setStoredPlatformId(id: number) {
-  localStorage.setItem(PLATFORM_KEY, String(id));
-}
-
-export function clearStoredPlatformId() {
-  localStorage.removeItem(PLATFORM_KEY);
+  // Clear legacy platform selection if present
+  localStorage.removeItem("terra_admin_platform_id");
 }

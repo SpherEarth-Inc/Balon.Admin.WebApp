@@ -1,18 +1,22 @@
 import { apiRequest } from "@/api/client";
-import type { MediaItem } from "@/api/types";
+import type { MediaItem, Product } from "@/api/types";
+import { productApiPrefix } from "@/lib/products";
 
-export function listMedia(platform: string) {
-  const params = new URLSearchParams({ platform });
-  return apiRequest<MediaItem[]>(`/api/media/?${params.toString()}`);
+export function listMedia(product: Product) {
+  return apiRequest<MediaItem[]>(
+    `/api/${productApiPrefix(product)}/media/`,
+  );
 }
 
-export function uploadMedia(platform: string, file: File, newsId: number) {
+export function uploadMedia(product: Product, file: File, newsId: number) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("platform", platform);
   formData.append("news", String(newsId));
-  return apiRequest<MediaItem>("/api/media/upload/", {
-    method: "POST",
-    formData,
-  });
+  return apiRequest<MediaItem>(
+    `/api/${productApiPrefix(product)}/media/upload/`,
+    {
+      method: "POST",
+      formData,
+    },
+  );
 }

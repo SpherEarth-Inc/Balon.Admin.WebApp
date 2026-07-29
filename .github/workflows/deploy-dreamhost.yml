@@ -1,0 +1,62 @@
+name: Deploy to DreamHost
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dreamhost-admin
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static site
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL || 'https://balon-admin-api.spherearth.ca' }}
+
+      # DreamHost uses SFTP (port 22), not plain FTP (port 21).
+      # lftp mirror --delete syncs out/ like FTP-Deploy-Action: upload changes + remove stale files.
+      # GitHub secrets — Settings → Secrets and variables → Actions:
+      #   DREAMHOST_SFTP_SERVER       → hostname only (no sftp:// prefix)
+      #   DREAMHOST_SFTP_USERNAME     → DreamHost SFTP user
+      #   DREAMHOST_SFTP_PASSWORD     → DreamHost SFTP password
+      #   DREAMHOST_SFTP_REMOTE_PATH  → web root for balon-admin.spherearth.ca
+      #                                 e.g. /home/user/balon-admin.spherearth.ca/
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Sync site to DreamHost via SFTP
+        env:
+          SFTP_SERVER: ${{ secrets.DREAMHOST_SFTP_SERVER }}
+          SFTP_USERNAME: ${{ secrets.DREAMHOST_SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.DREAMHOST_SFTP_PASSWORD }}
+          SFTP_REMOTE_PATH: ${{ secrets.DREAMHOST_SFTP_REMOTE_PATH }}
+        run: |
+          REMOTE="${SFTP_REMOTE_PATH:-/}"
+          case "$REMOTE" in
+            */) ;;
+            *) REMOTE="${REMOTE}/" ;;
+          esac
+          lftp -u "$SFTP_USERNAME","$SFTP_PASSWORD" "sftp://$SFTP_SERVER" <<EOF
+          set sftp:connect-program "ssh -a -x -o StrictHostKeyChecking=no"
+          mirror -R --delete --parallel=4 --verbose ./out/ $REMOTE
+          quit
+          EOF

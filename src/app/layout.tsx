@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Oswald, Space_Grotesk } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/lib/auth/context";
-import { PlatformProvider } from "@/lib/platform/context";
 import { SessionProvider } from "@/lib/session/context";
 import "./globals.css";
 
@@ -17,8 +16,8 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "Terra Admin",
-  description: "Staff admin for SpherEarth platforms",
+  title: "Staff Buddy",
+  description: "Staff admin for SpherEarth website and soccer",
 };
 
 export default function RootLayout({
@@ -34,10 +33,8 @@ export default function RootLayout({
       <body className="min-h-full font-sans">
         <AuthProvider>
           <SessionProvider>
-            <PlatformProvider>
-              {children}
-              <Toaster richColors position="top-right" />
-            </PlatformProvider>
+            {children}
+            <Toaster richColors position="top-right" />
           </SessionProvider>
         </AuthProvider>
       </body>

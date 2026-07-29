@@ -2,14 +2,13 @@ import { apiRequest } from "@/api/client";
 import type {
   PermissionItem,
   RoleItem,
+  StaffAccessUpdate,
   StaffMember,
-  StaffMembershipUpdate,
 } from "@/api/types";
 
-export function listStaff(params?: { q?: string; platform?: string }) {
+export function listStaff(params?: { q?: string }) {
   const search = new URLSearchParams();
   if (params?.q) search.set("q", params.q);
-  if (params?.platform) search.set("platform", params.platform);
   const qs = search.toString();
   return apiRequest<StaffMember[]>(`/api/staff/${qs ? `?${qs}` : ""}`);
 }
@@ -18,13 +17,10 @@ export function getStaff(id: number) {
   return apiRequest<StaffMember>(`/api/staff/${id}/`);
 }
 
-export function updateStaffMemberships(
-  id: number,
-  memberships: StaffMembershipUpdate[],
-) {
+export function updateStaffAccess(id: number, payload: StaffAccessUpdate) {
   return apiRequest<StaffMember>(`/api/staff/${id}/`, {
     method: "PATCH",
-    body: { memberships },
+    body: payload,
   });
 }
 

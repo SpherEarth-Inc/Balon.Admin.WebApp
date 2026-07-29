@@ -13,18 +13,10 @@ export type TipTapDoc = {
 
 export type NewsStatus = "draft" | "published";
 
-export type Platform = {
-  id: number;
-  name: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-};
+export type Product = "website" | "soccer";
 
 export type News = {
   id: number;
-  platform: number;
-  platformName: string;
   title: string;
   slug: string;
   summary: string;
@@ -42,8 +34,6 @@ export type News = {
 
 export type MediaItem = {
   id: number;
-  platform: number;
-  platformName: string;
   file_name: string;
   object_name: string;
   url: string;
@@ -59,8 +49,6 @@ export type MediaItem = {
 export type CreateInviteResponse = {
   id: number;
   email: string;
-  platformId: number;
-  platformName: string;
   role: string;
   token: string;
   invite_link: string;
@@ -70,8 +58,6 @@ export type CreateInviteResponse = {
 export type AcceptInviteResponse = {
   message: string;
   email: string;
-  platformId: number;
-  platformName: string;
   role: string;
 };
 
@@ -80,9 +66,7 @@ export type TokenPair = {
   refresh: string;
 };
 
-export type StaffMembership = {
-  platformId: number;
-  platformName: string;
+export type StaffAccess = {
   role: string | null;
   role_permissions?: string[];
   extra_permissions?: string[];
@@ -106,7 +90,7 @@ export type MeResponse = {
   email: string;
   is_super_admin: boolean;
   permissions: string[];
-  memberships: StaffMembership[];
+  access: StaffAccess | null;
   profile: UserProfile;
 };
 
@@ -116,7 +100,7 @@ export type StaffMember = {
   is_super_admin: boolean;
   permissions?: string[];
   profile: UserProfile;
-  memberships: StaffMembership[];
+  access: StaffAccess | null;
 };
 
 export type RoleItem = {
@@ -132,8 +116,7 @@ export type PermissionItem = {
   description: string;
 };
 
-export type StaffMembershipUpdate = {
-  platform: string;
+export type StaffAccessUpdate = {
   role: string | null;
   extra_permissions: string[];
 };
