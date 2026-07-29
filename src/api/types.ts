@@ -133,6 +133,41 @@ export type StaffAccessUpdate = {
   extra_permissions: string[];
 };
 
+export type FormSubmissionStatus = "new" | "reviewed" | "archived";
+
+export type FormCategory = {
+  slug: string;
+  title: string;
+  count: number;
+};
+
+export type FormFieldRow = {
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type FormSubmissionListItem = {
+  id: number;
+  form_slug: string;
+  form_title: string;
+  form_version: number;
+  email: string;
+  status: FormSubmissionStatus;
+  summary: string;
+  created_at: string;
+  updated_at: string;
+  reviewed_at: string | null;
+  reviewed_by: number | null;
+};
+
+export type FormSubmissionDetail = FormSubmissionListItem & {
+  data: Record<string, unknown>;
+  meta: Record<string, unknown>;
+  fields: FormFieldRow[];
+  meta_fields: FormFieldRow[];
+};
+
 export type ProfileUpdatePayload = {
   first_name?: string;
   middle_name?: string;

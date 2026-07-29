@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, ImageIcon, Users } from "lucide-react";
+import { ClipboardList, FileText, ImageIcon, Users } from "lucide-react";
 import { PageSpinner } from "@/components/ui/spinner";
 import { useSession } from "@/lib/session/context";
 
@@ -10,6 +10,7 @@ export default function DashboardPage() {
     canViewStaff,
     canAccessNews,
     canAccessMedia,
+    canAccessForms,
     isLoading: sessionLoading,
   } = useSession();
 
@@ -17,7 +18,8 @@ export default function DashboardPage() {
     return <PageSpinner />;
   }
 
-  const hasAnyCard = canViewStaff || canAccessNews || canAccessMedia;
+  const hasAnyCard =
+    canViewStaff || canAccessNews || canAccessMedia || canAccessForms;
 
   return (
     <div className="space-y-6">
@@ -61,6 +63,21 @@ export default function DashboardPage() {
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Images used in news.
+            </p>
+          </Link>
+        ) : null}
+
+        {canAccessForms ? (
+          <Link
+            href="/forms"
+            className="rounded-none border border-border bg-white p-5 shadow-sm transition hover:border-brand-green/40 hover:shadow"
+          >
+            <ClipboardList className="size-5 text-brand-green" />
+            <h2 className="mt-3 font-heading text-lg font-bold uppercase tracking-tight text-brand-navy">
+              Forms
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review website form submissions.
             </p>
           </Link>
         ) : null}
