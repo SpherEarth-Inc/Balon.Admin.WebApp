@@ -16,6 +16,11 @@ export function NewsEdit() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!params.id || params.id === "_") {
+      router.replace("/news/");
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
     getNews(params.id)
@@ -25,7 +30,7 @@ export function NewsEdit() {
       .catch((err) => {
         if (!cancelled) {
           toast.error(err instanceof Error ? err.message : "Failed to load");
-          router.replace("/news");
+          router.replace("/news/");
         }
       })
       .finally(() => {
